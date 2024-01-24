@@ -1,4 +1,3 @@
-package org.example;
 /*
  *  Copyright (C) 2020 the original author or authors.
  *
@@ -15,7 +14,10 @@ package org.example;
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+package com.fizzgate;
 
+import com.fizzgate.aggregate.core.flow.NodeFactory;
+import com.fizzgate.com.fizzgate.aggregate.web.flow.extension.mysql.MysqlNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -83,8 +85,6 @@ import org.springframework.boot.autoconfigure.web.reactive.error.ErrorWebFluxAut
 import org.springframework.boot.web.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
-import com.fizzgate.Fizz;
-import com.fizzgate.FizzAppContext;
 import com.fizzgate.config.AggregateRedisConfig;
 import com.fizzgate.log.LogSendAppender;
 import com.fizzgate.util.FileUtils;
@@ -186,11 +186,14 @@ import org.springframework.context.annotation.ComponentScan;
 )
 @EnableDiscoveryClient
 @ComponentScan({"com.fizzgate"})
-public class Main {
+public class FizzBootstrapApplication {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FizzBootstrapApplication.class);
 
     public static void main(String[] args) {
+        // 根据需要注册Mysql组件
+        NodeFactory.registerBuilder(MysqlNode.TYPE, new MysqlNode.MysqlNodeBuilder());
+
         System.setProperty("log4j2.contextSelector",               "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
         System.setProperty("log4j2.formatMsgNoLookups",            "true");
         System.setProperty("log4j2.isThreadContextMapInheritable", "true");
@@ -199,10 +202,11 @@ public class Main {
         System.setProperty("APP_ROOT_DIR", appRootDir);
         LOGGER.info("app root dir: {}", appRootDir);
 
-        SpringApplication springApplication = new SpringApplication(Main.class);
+        SpringApplication springApplication = new SpringApplication(FizzBootstrapApplication.class);
         springApplication.setApplicationContextClass(CustomReactiveWebServerApplicationContext.class);
         Fizz.context = springApplication.run(args);
         FizzAppContext.appContext = Fizz.context;
+
     }
 
     private static class CustomReactiveWebServerApplicationContext extends AnnotationConfigReactiveWebServerApplicationContext {

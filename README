@@ -1,0 +1,15 @@
+# maven编译打包
+
+```
+mvn clean package -Dmaven.test.skip=true
+```
+
+# docker编译打包
+
+在maven打包之后执行
+
+```
+docker build -t fizzgate/fizz-gateway-community:${version} .
+```
+
+${version} 替换为打包版本号，需要与服务端版本一致
