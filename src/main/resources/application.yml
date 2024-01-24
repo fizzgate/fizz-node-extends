@@ -1,0 +1,167 @@
+# if you do not use Apollo, ignore the follow config
+################################################## Apollo config start ##################################################
+apollo:
+  # if use Apollo set this flag to true
+  enabled: false #use Apollo? (default:false)
+  bootstrap:
+    # if use Apollo set this flag to true
+    enabled: false #use Apollo?
+    namespaces: application #please input the apollo bootstrap namespaces (default:application)
+    eagerLoad:
+      # if use Apollo set this flag to true
+      enabled: false #use Apollo?
+################################################### Apollo config end ###################################################
+
+# if you do not use Eureka, ignore the follow config
+################################################## Eureka config start ##################################################
+eureka:
+  client:
+    # if use Eureka set this flag to true
+    enabled: false #use Eureka? (default:false)
+    serviceUrl:
+      # need replace
+      defaultZone: http://6.6.6.6:6600/eureka/ #please input the eureka client serviceUrl defaultZone (default:http://localhost:6600/eureka/)
+  instance:
+    prefer-ip-address: true
+################################################### Eureka config end ###################################################
+
+server:
+  port: 8600
+spring:
+  profiles:
+    active: dev
+  application:
+    name: fizz-gateway
+  main:
+    allow-bean-definition-overriding: true
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+    circuitbreaker.resilience4j.enabled: false
+    nacos:
+      discovery:
+        # if use Nacos discovery set this flag to true
+        enabled: false #use Nacos Discovery? (default:false)
+        # need replace
+        server-addr: 6.6.6.6:8848 #please input the nacos discovery server-addr (default:localhost:8848)
+        namespace: null #please input the nacos config type (default:null)
+        group: DEFAULT_GROUP #please input the nacos discovery register group (default:DEFAULT_GROUP)
+
+# Must use the same Redis as fizz-manager
+aggregate:
+  redis:
+# standalone redis config
+    # need replace
+    host: 127.0.0.1 #please input the redis host (default:localhost)
+    # need replace
+    port: 6379 #please input the redis port (default:6379)
+    # need replace
+    password: 123456 #please input the redis password (default:123456)
+    # need replace
+    database: 9 #please input the redis database (default:9)
+
+# redis cluster config
+#   type: cluster # type can be standalone or cluster, standalone is default
+#   password: 123456
+#   clusterNodes: 172.1.1.181:7001,172.1.1.181:7002,172.1.1.181:7003,172.1.1.182:7001,172.1.1.182:7002,172.1.1.182:7003
+
+proxy-webclient:
+  name: proxy
+  trust-insecure-SSL: false
+aggr-webclient:
+  name: aggr
+fizz-web-client:
+  timeout: 20000
+fizz-dubbo-client:
+  address: zookeeper://127.0.0.1:2181
+log:
+  headers: COOKIE,FIZZ-APPID,FIZZ-SIGN,FIZZ-TS,FIZZ-RSV,HOST
+
+stat:
+  # switch for push access stat data
+  open: true
+send-log:
+  # switch for push log data
+  open: true
+sched:
+  executors: 2
+flowControl: true
+flow-stat-sched:
+  cron: 8/10 * * * * ?
+  dest: redis
+  queue: fizz_resource_access_stat
+
+gateway:
+  prefix: /
+  aggr:
+    # set headers when calling the backend API
+    proxy_set_headers: X-Real-IP,X-Forwarded-Proto,X-Forwarded-For
+
+refresh-local-cache:
+  # initial delay 5 minutes
+  initial-delay-millis: 300000
+  # fixed rate 5 minutes
+  fixed-rate-millis: 300000
+  api-config-enabled: true
+  api-config-2-apps-enabled: true
+  aggregate-config-enabled: true
+  gateway-group-enabled: true
+  app-auth-enabled: true
+  flow-control-rule-enabled: true
+  rpc-service-enabled: true
+  degrade-rule-enabled: true
+  
+fizz:
+
+    aggregate:
+        writeMapNullValue: false
+
+    error:
+        response:
+            http-status.enable: true
+            code-field:         "msgCode"
+            message-field:      "message"
+
+    fast-fail-when-registry-center-down: false
+
+    web-client:
+        x-forwarded-for:
+            enable: true # default
+            append-gateway-ip: true # default
+
+#    dedicated-line:
+#        server:
+#            enable: true
+#        client:
+#            enable: true
+#            port:   8601
+#            request:
+#                timeliness:     300                          # default 300 sec
+#                timeout:        0                            # default no timeout
+#                retry-count:    0                            # default no retry
+#                retry-interval: 0                            # default no retry interval
+#                crypto:         true                         # if true, client will encrypt request body and decrypt response body
+#            service-registration:
+#                eureka:
+#                    server-port:           8601
+#                    client:
+#                        enabled:           true
+#                        serviceUrl:
+#                            defaultZone:   http://3.3.3.3:6600/eureka
+#                    instance:
+#                        appname:           fizz-dedicated-line
+#                        prefer-ip-address: true
+#                nacos:
+#                    discovery:
+#                        enabled:     true
+#                        service:     fizz-dedicated-line
+#                        port:        8601
+#                        server-addr: 2.2.2.2:8848
+
+fizz-trace-id:
+  header:         X-Trace-Id
+  value-strategy: requestId   # default, or can be uuid
+  value-prefix:   fizz
+
+cors: true # CORS switch, default true
